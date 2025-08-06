@@ -1,16 +1,22 @@
-FROM python:3.10-slim
+FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim
 
 WORKDIR /app
 
-# Install uv
-RUN pip install uv
+# Enable bytecode compilation and set copy mode for better container performance
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
 
-# Copy dependency files
-COPY requirements.txt .
-# Use uv to install dependencies (much faster than pip)
-RUN uv pip install --no-cache-dir -r requirements.txt
+# Copy dependency files first
+COPY pyproject.toml uv.lock ./
 
-COPY locustfile.py .
+# Install dependencies with cache mount and frozen lock
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project --no-dev
+
+# Copy application code
+COPY locustfile.py ./
+
+# Set non-root user for security
+USER nobody
 
 CMD ["locust"]
-
