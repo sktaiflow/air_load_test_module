@@ -11,7 +11,7 @@ COPY pyproject.toml pylock.toml ./
 
 # Install dependencies with cache mount and frozen lock
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip sync pylock.toml
+    uv pip sync --system pylock.toml
 
 # Copy application code
 COPY locustfile.py ./
