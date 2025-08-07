@@ -22,8 +22,9 @@ jobs:
       ECR_REGISTRY: 645634482499.dkr.ecr.ap-northeast-2.amazonaws.com
       ECR_REPOSITORY: dev/locust
       IMAGE_TAG: ${{ github.sha }}
-      ECS_CLUSTER_NAME: map-loadtest-cluster
-      ECS_SERVICE_NAME: loadtest-service
+      ECS_CLUSTER_NAME: map-loadtest-ecs-cluster
+      ECS_MASTER_SERVICE_NAME: locust-master-service-bc2c72a
+      ECS_WORKER_SERVICE_NAME: locust-worker-service-1bc2b1c
 
     steps:
       - name: Checkout code
@@ -65,11 +66,24 @@ jobs:
         run: |
           aws ecs update-service \
             --cluster $ECS_CLUSTER_NAME \
-            --service $ECS_SERVICE_NAME \
+            --service $ECS_MASTER_SERVICE_NAME \
             --force-new-deployment
 
       - name: Wait for deployment
         run: |
           aws ecs wait services-stable \
             --cluster $ECS_CLUSTER_NAME \
-            --services $ECS_SERVICE_NAME
+            --services $ECS_MASTER_SERVICE_NAME
+      
+      - name: Deploy to SECONDARY ECS
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER_NAME \
+            --service $ECS_WORKER_SERVICE_NAME \
+            --force-new-deployment
+
+      - name: Wait for deployment
+        run: |
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER_NAME \
+            --services $ECS_WORKER_SERVICE_NAME
