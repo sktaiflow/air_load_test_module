@@ -22,5 +22,6 @@ USER nobody
 # Expose Locust ports # Web UI # Worker communication
 EXPOSE 8089  
 EXPOSE 5557  
+EXPOSE 5558
 
 CMD ["locust"]
