@@ -2,6 +2,7 @@ from locust import User, task, between
 from neo4j import GraphDatabase
 import os
 import random
+import time
 
 
 class BoltUser(User):
@@ -27,7 +28,25 @@ class BoltUser(User):
     @task
     def run_random_query(self):
         query = random.choice(self.cypher_queries)
+        start_time = time.time()
         try:
             self.session.run(query).consume()
+            total_time = int((time.time() - start_time) * 1000)
+            self.environment.events.request.fire(
+                request_type="Cypher",  # 자유롭게 정의 가능
+                name=query.split()[0],  # 예: MATCH
+                response_time=total_time,
+                response_length=0,
+                exception=None,
+                context={},
+            )
         except Exception as e:
-            print(f"Query failed: {query}\nError: {e}")
+            total_time = int((time.time() - start_time) * 1000)
+            self.environment.events.request.fire(
+                request_type="Cypher",
+                name="FAILED",
+                response_time=total_time,
+                response_length=0,
+                exception=e,
+                context={},
+            )
