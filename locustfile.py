@@ -9,9 +9,10 @@ class BoltUser(User):
     wait_time = between(1, 2)
 
     def on_start(self):
+        neo4j_uri = os.getenv("neo4j_uri", "bolt://localhost")
         self.driver = GraphDatabase.driver(
-            os.getenv("NEO4J_URI", "bolt://localhost:7687"),
-            auth=(os.getenv("NEO4J_USER", "neo4j"), os.getenv("NEO4J_PASSWORD", "password")),
+            f"{neo4j_uri}:7687",
+            auth=(os.getenv("neo4j_username", "neo4j"), os.getenv("neo4j_password", "password")),
         )
         self.session = self.driver.session()
         self.cypher_queries = [
