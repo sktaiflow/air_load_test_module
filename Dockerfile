@@ -19,8 +19,8 @@ COPY locustfile.py ./
 # Set non-root user for security
 USER nobody
 
-# Expose Locust ports
-EXPOSE 8089  # Web UI
-EXPOSE 5557  # Worker communication
+# Expose Locust ports # Web UI # Worker communication
+EXPOSE 8089  
+EXPOSE 5557  
 
 CMD ["locust"]
