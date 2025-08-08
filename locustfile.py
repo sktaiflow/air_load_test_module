@@ -11,7 +11,7 @@ class BoltUser(User):
     def on_start(self):
         neo4j_uri = os.getenv("NEO4J_URI", "bolt://localhost")
         self.driver = GraphDatabase.driver(
-            f"{neo4j_uri}:7687",
+            f"bolt://{neo4j_uri}:7687",
             auth=(os.getenv("neo4j_username", "neo4j"), os.getenv("neo4j_password", "password")),
         )
         self.session = self.driver.session()
